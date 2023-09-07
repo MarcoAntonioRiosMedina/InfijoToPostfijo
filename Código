@@ -1,0 +1,92 @@
+import java.util.Scanner;
+import java.util.Stack;
+
+public class InfijaToSufija {
+
+    public static void main(String[] args) {
+        System.out.println("Escribe la expresión deseada para la conversión: ");
+        Scanner scanner = new Scanner(System.in);
+        String expresion = scanner.nextLine();
+
+        if (expresion.isEmpty()) {
+            System.out.println("No se ha proporcionado alguna expresión.");
+            return; // Salir del programa si no se proporciona una expresión
+        }
+
+        String ExpresionInfija = expresion;
+        String ExpresionPostfija = infijaToPosfija(ExpresionInfija);
+
+        if (ExpresionPostfija.equals("ERROR")) {
+            System.out.println("Error en la expresión.");
+        } else {
+            System.out.println("Expresión infija: " + ExpresionInfija);
+            System.out.println("Expresión posfija: " + ExpresionPostfija);
+        }
+    }
+
+    public static String infijaToPosfija(String ExpresionInfija) {
+        StringBuilder ExpresionPostfija = new StringBuilder();
+        Stack<Character> operatorStack = new Stack<>();
+
+        for (int i = 0; i < ExpresionInfija.length(); i++) {
+            char token = ExpresionInfija.charAt(i);
+
+            switch (token) {
+                case '+':
+                case '-':
+                case '*':
+                case '/':
+                case '^':
+                    while (!operatorStack.isEmpty() && operadores(operatorStack.peek()) >= operadores(token)) {
+                        ExpresionPostfija.append(operatorStack.pop());
+                    }
+                    operatorStack.push(token);
+                    break;
+                case '(':
+                case '{':
+                case '[':
+                    operatorStack.push(token);
+                    break;
+                case ')':
+                case ']':
+                case '}':
+                    while (!operatorStack.isEmpty() && operatorStack.peek() != '(') {
+                        ExpresionPostfija.append(operatorStack.pop());
+                    }
+                    if (!operatorStack.isEmpty() && operatorStack.peek() == '(') {
+                        operatorStack.pop();
+                    } else {
+                        return "ERROR";
+                    }
+                    break;
+                default:
+                    ExpresionPostfija.append(token);
+                    break;
+            }
+        }
+
+        while (!operatorStack.isEmpty()) {
+            if (operatorStack.peek() == '(' || operatorStack.peek() == '{' || operatorStack.peek() == '[') {
+                return "ERROR";
+            }
+            ExpresionPostfija.append(operatorStack.pop());
+        }
+
+        return ExpresionPostfija.toString();
+    }
+
+    private static int operadores(char operator) {
+        switch (operator) {
+            case '+':
+            case '-':
+                return 1;
+            case '*':
+            case '/':
+                return 2;
+            case '^':
+                return 3;
+            default:
+                return -1; // Operador desconocido
+        }
+    }
+}//end main
